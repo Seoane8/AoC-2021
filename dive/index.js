@@ -1,20 +1,21 @@
 const inputPath = './dive/input.txt'
 
 const resolve = lines => {
-  const movesCounter = {
-    forward : 0,
-    down    : 0,
-    up      : 0
+  let horizontal = 0
+  let depth = 0
+  let aim = 0
+
+  const moves = {
+    forward : units => { horizontal += units; depth += aim*units },
+    down    : units => { aim += units },
+    up      : units => { aim -= units }
   }
 
   lines
     .map(line => line.split(' '))
-    .forEach(([move, units]) => movesCounter[move] += Number(units))
+    .forEach(([move, units]) => moves[move](Number(units)))
 
-  const partOne = movesCounter.forward * (movesCounter.down - movesCounter.up)
-  const partTwo = null
-
-  return {partOne, partTwo}
+  return horizontal * depth
 }
 
 export default {resolve, inputPath}
