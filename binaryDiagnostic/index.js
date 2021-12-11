@@ -1,29 +1,48 @@
 const inputPath = './binaryDiagnostic/input.txt'
 
+const calculateBitSum = (bitsList, idx) => {
+  return bitsList
+    .map(bits => Number(bits[idx]))
+    .reduce((sum, bit) => sum + bit, 0)
+}
+
 const resolve = lines => {
-  const mostCommonBits = []
+  const binaryNumLength = lines[0].length
+  let oxygenRatingCandidates = [...lines]
+  let i = 0;
   
-  lines
-    .map(line => line.split(''))
-    .forEach(bits => {
-      bits
-        .forEach((bit, idx) => {
-          mostCommonBits[idx] = mostCommonBits[idx] 
-            ? mostCommonBits[idx] + Number(bit)
-            : Number(bit)
-        })
-        
-    })
+  while (oxygenRatingCandidates.length > 1 && i < binaryNumLength) {
+    const sumBits = calculateBitSum(oxygenRatingCandidates, i)
+
+    const mostCommonBit = 
+      sumBits / oxygenRatingCandidates.length < 0.5 ? 0 : 1
+
+    oxygenRatingCandidates = oxygenRatingCandidates
+      .filter(bits => Number(bits[i]) === mostCommonBit)
+
+    i++
+  }
+
+
+  let CO2RatingCandidates = [...lines]
+  i = 0;
   
-  const gammaRate = mostCommonBits
-    .map(bit => bit/lines.length > 0.5 ? 1 : 0)
-    .join('')
+  while (CO2RatingCandidates.length > 1 && i < binaryNumLength) {
+    const sumBits = calculateBitSum(CO2RatingCandidates, i)
 
-  const epsilonRate = mostCommonBits
-    .map(bit => bit/lines.length > 0.5 ? 0 : 1)
-    .join('')
+    const leastCommonBit = 
+      sumBits / CO2RatingCandidates.length < 0.5 ? 1 : 0
 
-  return parseInt(gammaRate, 2) * parseInt(epsilonRate, 2)
+      CO2RatingCandidates = CO2RatingCandidates
+      .filter(bits => Number(bits[i]) === leastCommonBit)
+
+    i++
+  }
+
+  const oxygenRating = parseInt(oxygenRatingCandidates.pop(), 2)
+  const CO2Rating = parseInt(CO2RatingCandidates.pop(), 2)
+
+  return oxygenRating * CO2Rating
 }
 
 export default {resolve, inputPath}
