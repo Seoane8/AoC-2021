@@ -3,11 +3,11 @@ const inputPath = './giantSquib/input.txt'
 const processLines = lines => {
   const numbers = lines.shift().split(',').map(num => Number(num))
   let boards = []
-  let board = []
+  let board = {bingo: false, numbers: []}
   lines.forEach(line => {
-    if (line === '' && board.length !== 0) boards = [...boards, board]
+    if (line === '' && board.numbers.length !== 0) boards = [...boards, board]
     if (line === '') {
-      board = []
+      board = {bingo: false, numbers: []}
       return
     }
 
@@ -16,8 +16,10 @@ const processLines = lines => {
       .filter(num =>  num !== '')
       .map(num => ({value: Number(num), marked: false}))
 
-    board = [...board, formatedLine]
+    board.numbers = [...board.numbers, formatedLine]
   })
+
+  if (board.length !== 0) boards = [...boards, board]
 
   return {numbers, boards}
 }
@@ -68,13 +70,21 @@ const sumUnmarked = board => {
   return sum
 }
 
+const allBoardsAreBingo = boards => {
+  return boards
+    .map(board => board.bingo)
+    .reduce((acc, isBingo) => acc && isBingo)
+}
+
 const resolve = lines => {
   const {numbers, boards} = processLines(lines)
 
   for (const number of numbers) {
     for (const board of boards) {
-      if (!isBingo(board, number)) continue
-      return number * sumUnmarked(board)
+      if (board.bingo) continue
+      if (!isBingo(board.numbers, number)) continue
+      board.bingo = true
+      if (allBoardsAreBingo(boards)) return number * sumUnmarked(board.numbers)
     }
   }
 }
